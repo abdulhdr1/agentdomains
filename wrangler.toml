@@ -8,3 +8,8 @@ compatibility_date = "2025-05-25"
 
 [observability]
 enabled = true
+
+# Keyless usage telemetry written from the Worker (queried via /stats).
+[[analytics_engine_datasets]]
+binding = "AE"
+dataset = "agentdomains_usage"

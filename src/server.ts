@@ -8,8 +8,12 @@ import { attachPricing } from "./lib/pricing";
 import { formatAvailability, formatSearch } from "./lib/format";
 import { landingPage } from "./ui/landing";
 import { discoveryDoc, llmsTxt, openApiSpec } from "./ui/discovery";
+import { readStats, track } from "./lib/analytics";
 
-export const app = new Hono();
+export const app = new Hono<{ Bindings: Env }>();
+
+const countryOf = (c: { req: { raw: Request } }): string | null =>
+  ((c.req.raw as { cf?: { country?: string } }).cf?.country ?? null);
 
 const text = (s: string, contentType = "text/plain; charset=utf-8") =>
   new Response(s + "\n", { headers: { "content-type": contentType } });
@@ -44,10 +48,12 @@ app.get("/v1/check", async (c) => {
     return c.json({ error: "missing ?domain= parameter" }, 400);
   }
   const tlds = parseTlds(c.req.query("tlds"));
+  const pricing = c.req.query("pricing") === "true";
   const result = await checkOrSearch(domain, tlds);
-  if (c.req.query("pricing") === "true") {
+  if (pricing) {
     await attachPricing(isSearchResult(result) ? result.results : [result]);
   }
+  track(c.env, { endpoint: "/v1/check", result, pricing, country: countryOf(c) });
   if (c.req.query("format") === "text") {
     return text(isSearchResult(result) ? formatSearch(result) : formatAvailability(result));
   }
@@ -61,14 +67,23 @@ app.get("/v1/search", async (c) => {
     return c.json({ error: "missing ?q= parameter" }, 400);
   }
   const tlds = parseTlds(c.req.query("tlds"));
+  const pricing = c.req.query("pricing") === "true";
   const result = await search(q, tlds);
-  if (c.req.query("pricing") === "true") {
+  if (pricing) {
     await attachPricing(result.results);
   }
+  track(c.env, { endpoint: "/v1/search", result, pricing, country: countryOf(c) });
   if (c.req.query("format") === "text") {
     return text(formatSearch(result));
   }
   return c.json(result);
+});
+
+// Aggregated usage, read back from Analytics Engine. Returns guidance until the
+// read-only token (CF_ACCOUNT_ID + CF_API_TOKEN) is configured.
+app.get("/stats", async (c) => {
+  const days = Math.min(Math.max(Number(c.req.query("days") ?? 7), 1), 90);
+  return c.json(await readStats(c.env, days));
 });
 
 app.notFound((c) =>
