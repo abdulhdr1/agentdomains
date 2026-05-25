@@ -2,7 +2,7 @@
 // alone: a JSON index (served at `/` under Accept: application/json), an
 // llms.txt map, and an OpenAPI 3.1 spec.
 
-import { DEFAULT_TLDS } from "../lib/tlds";
+import { DEFAULT_TLDS, TLD_GROUPS } from "../lib/tlds";
 
 const VERSION = "0.1.0";
 const SUMMARY =
@@ -30,7 +30,7 @@ export function discoveryDoc(origin: string) {
           tlds: {
             type: "string",
             required: false,
-            description: "TLDs to sweep when no TLD is given.",
+            description: "TLDs to sweep when no TLD is given. Accepts group names (all, startup, tech, agent).",
           },
           pricing: {
             type: "boolean",
@@ -50,7 +50,7 @@ export function discoveryDoc(origin: string) {
           tlds: {
             type: "string",
             required: false,
-            description: "Comma-separated TLDs without the dot.",
+            description: "Comma-separated TLDs without the dot, and/or group names (all, startup, tech, agent).",
             default: DEFAULT_TLDS.join(","),
           },
           pricing: {
@@ -79,6 +79,10 @@ export function discoveryDoc(origin: string) {
       price:
         "present only with ?pricing=true. TLD BASE price in USD (Porkbun) — registry-premium names can cost far more.",
     },
+    defaultTlds: [...DEFAULT_TLDS],
+    tldGroups: Object.fromEntries(
+      Object.entries(TLD_GROUPS).map(([name, tlds]) => [name, [...tlds]]),
+    ),
     mcp: {
       transport: "stdio",
       command: "bun",
@@ -109,7 +113,7 @@ or \`heuristic\` (DNS).
 ## API
 
 - [Check one domain](${origin}/v1/check?domain=acme.io): \`GET /v1/check?domain={domain}\` — availability of one domain. A bare keyword with no TLD sweeps all TLDs. Add \`&pricing=true\` for prices, \`&format=text\` for ASCII.
-- [Search across TLDs](${origin}/v1/search?q=acme&tlds=com,io,ai): \`GET /v1/search?q={keyword}&tlds={csv}\` — sweep a keyword across TLDs (default: ${DEFAULT_TLDS.join(", ")}). Supports \`&pricing=true\` and \`&format=text\`.
+- [Search across TLDs](${origin}/v1/search?q=acme&tlds=com,io,ai): \`GET /v1/search?q={keyword}&tlds={csv}\` — sweep a keyword across TLDs. Default sweeps ${DEFAULT_TLDS.length}: ${DEFAULT_TLDS.join(", ")}. \`tlds\` also accepts group names: ${Object.keys(TLD_GROUPS).join(", ")} (e.g. \`&tlds=all\`). Supports \`&pricing=true\` and \`&format=text\`.
 - [Prices](${origin}/v1/search?q=acme&pricing=true): add \`&pricing=true\` to attach each available domain's TLD base price (USD, Porkbun snapshot). Base price only — registry-premium names cost more.
 - [Health](${origin}/health): \`GET /health\` — liveness.
 
@@ -151,7 +155,7 @@ export function openApiSpec(origin: string) {
               in: "query",
               required: false,
               schema: { type: "string" },
-              description: "TLDs to sweep when no TLD is given.",
+              description: "TLDs to sweep when no TLD is given. Accepts group names (all, startup, tech, agent).",
             },
             {
               name: "pricing",
@@ -203,7 +207,7 @@ export function openApiSpec(origin: string) {
               in: "query",
               required: false,
               schema: { type: "string" },
-              description: "Comma-separated TLDs without the dot.",
+              description: "Comma-separated TLDs without the dot, and/or group names (all, startup, tech, agent).",
               example: "com,io,ai",
             },
             {

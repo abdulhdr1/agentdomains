@@ -28,12 +28,13 @@ Open the root URL in a browser for the terminal-styled docs page.
 | route        | params                                   | what                        |
 | ------------ | ---------------------------------------- | --------------------------- |
 | `GET /v1/check`  | `domain` `[format=text]`             | availability of one domain  |
-| `GET /v1/search` | `q` `[tlds=com,io,ai]` `[format=text]` | sweep a keyword across TLDs |
+| `GET /v1/search` | `q` `[tlds=com,io,ai\|all\|startup\|tech\|agent]` `[format=text]` | sweep a keyword across TLDs |
 | `GET /health`    | —                                    | liveness                    |
 
 ```sh
 curl 'http://localhost:8787/v1/check?domain=acme.io'
 curl 'http://localhost:8787/v1/search?q=acme&tlds=com,io,ai'
+curl 'http://localhost:8787/v1/search?q=acme&tlds=all'           # ~36 TLDs (or startup/tech/agent)
 curl 'http://localhost:8787/v1/search?q=acme&format=text'        # pretty ASCII
 curl 'http://localhost:8787/v1/search?q=acme&pricing=true'       # + TLD base price
 ```

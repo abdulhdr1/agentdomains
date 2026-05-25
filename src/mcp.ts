@@ -36,7 +36,10 @@ server.registerTool(
       tlds: z
         .array(z.string())
         .optional()
-        .describe("TLDs to sweep when no TLD is given. Defaults to the startup set."),
+        .describe(
+          "TLDs to sweep when no TLD is given. Also accepts group names: " +
+            "all, startup, tech, agent (e.g. ['all']).",
+        ),
       pricing: z
         .boolean()
         .optional()
@@ -69,8 +72,8 @@ server.registerTool(
         .array(z.string())
         .optional()
         .describe(
-          "TLDs to sweep without the leading dot. Defaults to a startup set: " +
-            "com, io, ai, dev, app, sh, co, net, org, xyz.",
+          "TLDs to sweep without the leading dot. Also accepts group names: " +
+            "all (~36), startup, tech, agent. Defaults to ~18 popular TLDs.",
         ),
       pricing: z
         .boolean()

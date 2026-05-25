@@ -6,7 +6,9 @@ import { type Availability, normalizeDomain, normalizeKeyword } from "./domain";
 import { checkAvailability } from "./availability";
 import { DEFAULT_TLDS } from "./tlds";
 
-const CONCURRENCY = 8;
+// Each TLD hits a different registry, so we can fan out fairly wide without
+// hammering any one server — keeps the larger sweeps (e.g. ?tlds=all) snappy.
+const CONCURRENCY = 12;
 
 /** Either a single-domain check or a multi-TLD sweep. */
 export type CheckResult = Availability | SearchResult;

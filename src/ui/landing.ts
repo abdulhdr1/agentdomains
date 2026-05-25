@@ -132,7 +132,7 @@ export function landingPage(origin: string): string {
 
   <h2 id="search">sweep a name across TLDs</h2>
   <div class="rule">${"=".repeat(54)}</div>
-  <p class="dim">One keyword, many TLDs. Defaults to com, io, ai, dev, app, sh, co, net, org, xyz.</p>
+  <p class="dim">One keyword, many TLDs. Defaults to 18 popular ones; pass <span class="amber">&amp;tlds=all</span> (~36) or a group: <span class="amber">startup</span>, <span class="amber">tech</span>, <span class="amber">agent</span>.</p>
   <pre class="code"><span class="prompt">$</span> curl <span class="s">"${origin}/v1/search?q=acme&amp;tlds=com,io,ai"</span>
 
 {
@@ -174,7 +174,7 @@ export function landingPage(origin: string): string {
   <h2 id="api">api reference</h2>
   <div class="rule">${"=".repeat(54)}</div>
   <pre class="code"><span class="k">GET</span> /v1/check    <span class="c">?domain=acme.io [&tlds=…] [&pricing=true] [&format=text]</span>
-<span class="k">GET</span> /v1/search   <span class="c">?q=acme [&tlds=com,io,ai] [&pricing=true] [&format=text]</span>
+<span class="k">GET</span> /v1/search   <span class="c">?q=acme [&tlds=all|startup|tech|agent|csv] [&pricing=true] [&format=text]</span>
 <span class="k">GET</span> /health      <span class="c">liveness</span></pre>
   <p class="dim">
     <span class="amber">available</span> is <span class="green">true</span> / <span class="red">false</span> / <span class="dim">null</span>.
