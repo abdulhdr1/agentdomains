@@ -8,7 +8,9 @@ import { attachPricing } from "./lib/pricing";
 import { formatAvailability, formatSearch } from "./lib/format";
 import { landingPage } from "./ui/landing";
 import { discoveryDoc, llmsTxt, openApiSpec } from "./ui/discovery";
+import { jsonViewPage } from "./ui/jsonview";
 import { readStats, track } from "./lib/analytics";
+import type { Context } from "hono";
 
 export const app = new Hono<{ Bindings: Env }>();
 
@@ -27,18 +29,37 @@ const originOf = (url: string) => {
 const wantsJson = (accept: string | undefined) =>
   !!accept && accept.includes("application/json") && !accept.includes("text/html");
 
+/** True when the request looks like a browser navigation (wants HTML). */
+const isBrowser = (accept: string | undefined) =>
+  !!accept && accept.includes("text/html") && !accept.includes("application/json");
+
+/**
+ * Send a JSON payload. Humans in a browser get a syntax-highlighted viewer;
+ * agents/curl get pretty-printed JSON. `?format=json` forces raw in a browser.
+ */
+const sendJson = (c: Context, data: unknown) => {
+  if (isBrowser(c.req.header("accept")) && c.req.query("format") !== "json") {
+    const u = new URL(c.req.url);
+    u.searchParams.set("format", "json");
+    return c.html(jsonViewPage(data, { path: c.req.path, rawUrl: u.pathname + u.search }));
+  }
+  return c.body(JSON.stringify(data, null, 2) + "\n", 200, {
+    "content-type": "application/json; charset=utf-8",
+  });
+};
+
 // Root: HTML for browsers, a machine-readable discovery doc for agents.
 app.get("/", (c) => {
   const origin = originOf(c.req.url);
-  if (wantsJson(c.req.header("accept"))) return c.json(discoveryDoc(origin));
+  if (wantsJson(c.req.header("accept"))) return sendJson(c, discoveryDoc(origin));
   return c.html(landingPage(origin));
 });
 
-app.get("/health", (c) => c.json({ ok: true }));
+app.get("/health", (c) => sendJson(c, { ok: true }));
 
 // Agent navigation surfaces.
 app.get("/llms.txt", (c) => text(llmsTxt(originOf(c.req.url)), "text/markdown; charset=utf-8"));
-app.get("/openapi.json", (c) => c.json(openApiSpec(originOf(c.req.url))));
+app.get("/openapi.json", (c) => sendJson(c, openApiSpec(originOf(c.req.url))));
 
 // GET /v1/check?domain=acme.io  -> single domain
 // GET /v1/check?domain=acme     -> no TLD, so sweep all TLDs (optionally ?tlds=)
@@ -57,7 +78,7 @@ app.get("/v1/check", async (c) => {
   if (c.req.query("format") === "text") {
     return text(isSearchResult(result) ? formatSearch(result) : formatAvailability(result));
   }
-  return c.json(result);
+  return sendJson(c, result);
 });
 
 // GET /v1/search?q=acme[&tlds=com,io,ai][&format=text]
@@ -76,14 +97,14 @@ app.get("/v1/search", async (c) => {
   if (c.req.query("format") === "text") {
     return text(formatSearch(result));
   }
-  return c.json(result);
+  return sendJson(c, result);
 });
 
 // Aggregated usage, read back from Analytics Engine. Returns guidance until the
 // read-only token (CF_ACCOUNT_ID + CF_API_TOKEN) is configured.
 app.get("/stats", async (c) => {
   const days = Math.min(Math.max(Number(c.req.query("days") ?? 7), 1), 90);
-  return c.json(await readStats(c.env, days));
+  return sendJson(c, await readStats(c.env, days));
 });
 
 app.notFound((c) =>
