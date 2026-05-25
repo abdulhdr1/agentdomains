@@ -13,6 +13,22 @@ export function landingPage(origin: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>agentdomains — domains for agents</title>
 <meta name="description" content="An API for agents to find available domains to buy. RDAP-backed. No dashboards, no keys." />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#0a0a0a" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="agentdomains — domains for agents" />
+<meta property="og:description" content="An API for agents to find available domains to buy. RDAP + WHOIS, no keys." />
+<meta property="og:url" content="${origin}/" />
+<meta property="og:image" content="${origin}/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="agentdomains — domains for agents" />
+<meta name="twitter:description" content="An API for agents to find available domains to buy. RDAP + WHOIS, no keys." />
+<meta name="twitter:image" content="${origin}/og.png" />
 <style>
   :root {
     --bg: #0a0a0a;

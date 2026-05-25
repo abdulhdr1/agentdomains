@@ -6,6 +6,11 @@ compatibility_date = "2025-05-25"
 # The whole request path uses web-standard fetch / AbortSignal / URL only
 # (DNS goes over DoH), so no nodejs_compat flag is needed.
 
+# Static assets (favicon, icons, og image, manifest). Served for matching paths;
+# everything else falls through to the Worker.
+[assets]
+directory = "./public"
+
 [observability]
 enabled = true
 
