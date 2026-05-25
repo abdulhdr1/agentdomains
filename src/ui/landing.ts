@@ -42,6 +42,13 @@ export function landingPage(origin: string): string {
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  /* terminal-styled scrollbars (page + code blocks) */
+  * { scrollbar-width: thin; scrollbar-color: #2f2f2f transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+  ::-webkit-scrollbar-corner { background: transparent; }
   body {
     margin: 0;
     background: var(--bg);

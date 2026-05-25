@@ -34,6 +34,12 @@ export function jsonViewPage(data: unknown, opts: { path: string; rawUrl: string
     --green:#3fb950; --num:#58a6ff; --bool:#d2a8ff; --null:#ff6b6b; --border:#1c1c1c;
   }
   * { box-sizing:border-box; }
+  * { scrollbar-width:thin; scrollbar-color:#2f2f2f transparent; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:#2a2a2a; border-radius:8px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--amber); }
+  ::-webkit-scrollbar-corner { background:transparent; }
   body {
     margin:0; background:var(--bg); color:var(--fg);
     font-family: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
