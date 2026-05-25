@@ -1,0 +1,10 @@
+# Cloudflare Workers config. Deploy with `bun run deploy`.
+name = "agentdomains"
+main = "src/worker.ts"
+compatibility_date = "2025-05-25"
+
+# The whole request path uses web-standard fetch / AbortSignal / URL only
+# (DNS goes over DoH), so no nodejs_compat flag is needed.
+
+[observability]
+enabled = true
